@@ -1,0 +1,11 @@
+{
+  "name": "taurealworld",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Laegel <valentin.chouaf@laposte.net>",
+  "license": "MIT",
+  "dependencies": {
+    "deepmerge": "^4.2.2",
+    "js-yaml": "^3.13.1"
+  }
+}
