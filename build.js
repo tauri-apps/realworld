@@ -1,8 +1,9 @@
 const fs = require('fs')
 const path = require('path')
 const { safeLoad } = require('js-yaml')
-const { spawn } = require('child_process')
+// const { spawn } = require('child_process')
 const deepmerge = require('deepmerge')
+const spawn = require('cross-spawn')
 
 const clone = (repo, directory) => {
   return exec(`git clone ${repo} ${directory}`)
@@ -32,7 +33,7 @@ const exec = (command, directory = null) => {
         console.log(stdErr.join(''))
         return
       }
-      // resolve(stdOut.join(''))
+      resolve(stdOut.join(''))
     })
 
     child.on('exit', () => {
@@ -41,14 +42,17 @@ const exec = (command, directory = null) => {
   })
 }
 const bundle = async (tauriConfig, directory) => {
-  await exec('tauri init', directory)
+  // await exec('tauri init', directory)
+  await exec(
+    `${directory}/node_modules/.bin/tauri init --directory ${directory}`
+  )
   const tauriConfigPath = path.join(directory, 'src-tauri', 'tauri.conf.json')
   const mergedTauriConfig = deepmerge(
     JSON.parse(fs.readFileSync(tauriConfigPath)),
     tauriConfig
   )
   fs.writeFileSync(tauriConfigPath, JSON.stringify(mergedTauriConfig, null, 2))
-  return exec('tauri build --debug', directory)
+  return exec(`./node_modules/.bin/tauri build`, directory)
 }
 
 ;(() => {
@@ -65,18 +69,34 @@ const bundle = async (tauriConfig, directory) => {
 
           await clone('https://github.com/' + app.repo, directory)
 
-          console.log('  Installing dependencies...')
-          await exec(app.install, directory)
+          console.log('  Preparing project & tools...')
+
+          console.log(app.preinstall);
+          
+          const promises = app.preinstall
+            ? app.preinstall.map(line => exec(line, directory))
+            : []
+
+          await Promise.all(promises)
+
+          console.log('  Installing Tauri CLI & dependencies...')
+          await exec('npm install tauri', directory)
+          if (app.install) {
+            await exec(app.install, directory)
+          }
+          // await exec(app.install, directory)
           console.log('  Building app...')
+
           await exec(app.build, directory)
           console.log('  Bundling...')
           await bundle(app.tauri, directory)
           console.log('Done!')
         } catch (e) {
-          console.log('Failure!', e)
+          console.log('Failure!\n', e)
         }
       })
   } catch (e) {
-    // console.log(e)
+    console.log(e)
+    process.exit(1)
   }
 })()

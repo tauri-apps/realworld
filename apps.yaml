@@ -14,7 +14,9 @@
 - title: Elm
   repo: rtfeldman/elm-spa-example
   logo: https://cloud.githubusercontent.com/assets/556934/25448178/3e7dc5c0-2a7d-11e7-8069-06da5169dae6.png
-  install: 'yarn global add elm'
+  preinstall:
+    - 'npm install -g elm'
+    - 'node init-package'
   build: 'elm make src/Main.elm --output elm.js --optimize'
   tauri:
     build:
@@ -54,8 +56,10 @@
 - title: Vue
   repo: gothinkster/vue-realworld-example-app
   logo: https://github.com/gothinkster/vue-realworld-example-app/blob/master/static/rwv-logo.png
-  install: 'yarn'
-  build: 'yarn build'
+  preinstall:
+    - npm install -g @vue/cli
+  install: 'npm install'
+  build: './node_modules/.bin/vue-cli-service build'
   tauri:
     build:
       distDir: '../dist'
