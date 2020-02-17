@@ -47,10 +47,17 @@ const bundle = async (tauriConfig, directory) => {
     `${directory}/node_modules/.bin/tauri init --directory ${directory}`
   )
   const tauriConfigPath = path.join(directory, 'src-tauri', 'tauri.conf.json')
-  const mergedTauriConfig = deepmerge(
+  const mergedTauriConfig = deepmerge.all([
     JSON.parse(fs.readFileSync(tauriConfigPath)),
+    {
+      tauri: {
+        whitelist: {
+          open: false
+        }
+      }
+    },
     tauriConfig
-  )
+  ])
   fs.writeFileSync(tauriConfigPath, JSON.stringify(mergedTauriConfig, null, 2))
   return exec(`./node_modules/.bin/tauri build`, directory)
 }
@@ -71,8 +78,6 @@ const bundle = async (tauriConfig, directory) => {
 
           console.log('  Preparing project & tools...')
 
-          console.log(app.preinstall);
-          
           const promises = app.preinstall
             ? app.preinstall.map(line => exec(line, directory))
             : []

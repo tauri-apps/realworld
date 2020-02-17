@@ -1,8 +1,8 @@
 - title: React / Redux
   repo: gothinkster/react-redux-realworld-example-app
   logo: https://raw.githubusercontent.com/gothinkster/react-redux-realworld-example-app/master/project-logo.png
-  install: 'yarn'
-  build: 'yarn build'
+  install: 'npm install'
+  build: 'npm run build'
   tauri:
     build:
       distDir: '../build'
@@ -10,13 +10,13 @@
       inliner:
         active: false
 
-# When building: ERROR: Could not find a package.json in your app's directory. +0ms
+# Build fails
 - title: Elm
   repo: rtfeldman/elm-spa-example
   logo: https://cloud.githubusercontent.com/assets/556934/25448178/3e7dc5c0-2a7d-11e7-8069-06da5169dae6.png
   preinstall:
     - 'npm install -g elm'
-    - 'node init-package'
+    - 'node ../../init-package.js'
   build: 'elm make src/Main.elm --output elm.js --optimize'
   tauri:
     build:
