@@ -47,17 +47,40 @@ const bundle = async (tauriConfig, directory) => {
     `${directory}/node_modules/.bin/tauri init --directory ${directory}`
   )
   const tauriConfigPath = path.join(directory, 'src-tauri', 'tauri.conf.json')
-  const mergedTauriConfig = deepmerge.all([
-    JSON.parse(fs.readFileSync(tauriConfigPath)),
+  const mergedTauriConfig = deepmerge(
     {
+      build: {
+        distDir: '../build',
+        devPath: 'http://localhost:4000'
+      },
+      ctx: {},
       tauri: {
+        embeddedServer: {
+          active: true
+        },
+        bundle: {
+          active: true
+        },
         whitelist: {
           open: false
+        },
+        window: {
+          title: 'Tauri App'
+        },
+        security: {
+          csp:
+            "default-src blob: data: filesystem: ws: http: https: 'unsafe-eval' 'unsafe-inline'"
+        },
+        edge: {
+          active: true
+        },
+        inliner: {
+          active: false
         }
       }
     },
     tauriConfig
-  ])
+  )
   fs.writeFileSync(tauriConfigPath, JSON.stringify(mergedTauriConfig, null, 2))
   return exec(`./node_modules/.bin/tauri build`, directory)
 }
